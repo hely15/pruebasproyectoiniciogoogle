@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro con Google - Firebase</title>
+    
+    <!-- Estilos CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background-color: #4285F4;
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .auth-section {
+            margin-left: auto;
+        }
+        
+        .btn-login {
+            background-color: white;
+            color: #4285F4;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-login:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .btn-login img {
+            width: 18px;
+            margin-right: 10px;
+        }
+        
+        .user-info {
+            display: none;
+            align-items: center;
+            color: white;
+        }
+        
+        .user-info img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .btn-logout {
+            background-color: #ff4336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .welcome-box {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .welcome-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .welcome-text {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .welcome-box .btn-login {
+            margin: 0 auto;
+            display: inline-flex;
+        }
+        
+        .signed-in-content {
+            display: none;
+            text-align: center;
+        }
+        
+        .signed-in-content h2 {
+            color: #4285F4;
+            margin-bottom: 15px;
+        }
+        
+        .user-photo-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: block;
+            border: 3px solid #4285F4;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Mi Foro</div>
+                <div class="auth-section">
+                    <button id="btnHeaderLogin" class="btn-login">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                        Iniciar sesión
+                    </button>
+                    <div id="userInfo" class="user-info">
+                        <img id="userPhoto" src="https://via.placeholder.com/32" alt="Foto de perfil">
+                        <span id="userName">Usuario</span>
+                        <button id="btnLogout" class="btn-logout">Salir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div id="welcomeBox" class="welcome-box">
+                <h1 class="welcome-title">Bienvenido a Mi Foro</h1>
+                <p class="welcome-text">
+                    Un espacio para compartir ideas y opiniones con la comunidad.
+                    Regístrate para acceder a todas las funciones del foro.
+                </p>
+                <button id="btnMainLogin" class="btn-login">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    Registrarse con Google
+                </button>
+                
+                <div id="signedInContent" class="signed-in-content">
+                    <img id="userPhotoLarge" class="user-photo-large" src="https://via.placeholder.com/100" alt="Foto de perfil">
+                    <h2>¡Registro exitoso!</h2>
+                    <p>
+                        Bienvenido <strong id="userNameBig">Usuario</strong>.<br>
+                        Te has registrado correctamente en nuestro foro.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            // IMPORTANTE: Reemplazar con tus credenciales de Firebase
+            apiKey: "AIzaSyCL2CctB5ULQg2tkWKKTX20-Aot0aGsVYw",
+            authDomain: "registrocon-97cb2.firebaseapp.com",
+            projectId: "registrocon-97cb2",
+            storageBucket: "registrocon-97cb2.firebasestorage.app",
+            messagingSenderId: "373644979789",
+            appId: "1:373644979789:web:5b08ef46eb8852c59fb604",
+            measurementId: "G-X5Q3RL90PV"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        
+        // Referencias a elementos DOM
+        const btnHeaderLogin = document.getElementById('btnHeaderLogin');
+        const btnMainLogin = document.getElementById('btnMainLogin');
+        const btnLogout = document.getElementById('btnLogout');
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        const userNameBig = document.getElementById('userNameBig');
+        const userPhoto = document.getElementById('userPhoto');
+        const userPhotoLarge = document.getElementById('userPhotoLarge');
+        const welcomeBox = document.getElementById('welcomeBox');
+        const signedInContent = document.getElementById('signedInContent');
+
+        // Evento de autenticación
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Usuario ha iniciado sesión
+                showUserInfo(user);
+                btnHeaderLogin.style.display = 'none';
+                userInfo.style.display = 'flex';
+                btnMainLogin.style.display = 'none';
+                signedInContent.style.display = 'block';
+            } else {
+                // Usuario ha cerrado sesión
+                btnHeaderLogin.style.display = 'flex';
+                userInfo.style.display = 'none';
+                btnMainLogin.style.display = 'inline-flex';
+                signedInContent.style.display = 'none';
+            }
+        });
+
+        // Función para iniciar sesión con Google
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch(error => {
+                    console.error("Error en autenticación:", error);
+                    alert("Error al iniciar sesión: " + error.message);
+                });
+        }
+
+        // Iniciar sesión con Google (botón del header)
+        btnHeaderLogin.addEventListener('click', loginWithGoogle);
+        
+        // Iniciar sesión con Google (botón principal)
+        btnMainLogin.addEventListener('click', loginWithGoogle);
+
+        // Cerrar sesión
+        btnLogout.addEventListener('click', () => {
+            auth.signOut().catch(error => {
+                console.error("Error al cerrar sesión:", error);
+            });
+        });
+
+        // Mostrar información del usuario
+        function showUserInfo(user) {
+            userName.textContent = user.displayName;
+            userNameBig.textContent = user.displayName;
+            
+            if (user.photoURL) {
+                userPhoto.src = user.photoURL;
+                userPhotoLarge.src = user.photoURL;
+            }
+        }
+    </script>
+</body>
+</html>
