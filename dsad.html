@@ -1,284 +1,434 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro con Google - Firebase</title>
-    
-    <!-- Estilos CSS -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        header {
-            background-color: #4285F4;
-            color: white;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .auth-section {
-            margin-left: auto;
-        }
-        
-        .btn-login {
-            background-color: white;
-            color: #4285F4;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.3s;
-        }
-        
-        .btn-login:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .btn-login img {
-            width: 18px;
-            margin-right: 10px;
-        }
-        
-        .user-info {
-            display: none;
-            align-items: center;
-            color: white;
-        }
-        
-        .user-info img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-        
-        .btn-logout {
-            background-color: #ff4336;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px;
-            font-size: 14px;
-        }
-        
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .welcome-box {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-        }
-        
-        .welcome-title {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .welcome-text {
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        
-        .welcome-box .btn-login {
-            margin: 0 auto;
-            display: inline-flex;
-        }
-        
-        .signed-in-content {
-            display: none;
-            text-align: center;
-        }
-        
-        .signed-in-content h2 {
-            color: #4285F4;
-            margin-bottom: 15px;
-        }
-        
-        .user-photo-large {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            display: block;
-            border: 3px solid #4285F4;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Mi Foro - Firebase + Google Auth</title>
+  <style>
+    /* ———————— GLOBAL ———————— */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+    body { background:#f5f5f5; min-height:100vh; display:flex; flex-direction:column; }
+    .container { max-width:1200px; margin:0 auto; padding:0 20px; }
+    header { background:#4285F4; color:#fff; padding:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    .header-content { display:flex; align-items:center; }
+    .logo { font-size:24px; font-weight:bold; }
+    .nav-links { display:flex; gap:20px; margin-left:40px; }
+    .nav-links a { color:#fff; text-decoration:none; font-weight:bold; padding:5px 10px; border-radius:5px; transition:.3s; }
+    .nav-links a:hover, .nav-links a.active { background:rgba(255,255,255,0.2); }
+    .auth-section { margin-left:auto; display:flex; align-items:center; }
+    .btn-login { background:#fff; color:#4285F4; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold; display:flex; align-items:center; transition:.3s; }
+    .btn-login img { width:18px; margin-right:10px; }
+    .btn-login:hover { background:#f0f0f0; }
+    .user-info { display:none; align-items:center; color:#fff; }
+    .user-info img { width:32px; height:32px; border-radius:50%; margin-right:10px; object-fit:cover; }
+    .btn-logout { background:#ff4336; color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-left:10px; font-size:14px; }
+    main { flex:1; padding:20px; }
+    .section { display:none; margin:20px auto; background:#fff; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:30px; max-width:800px; }
+    /* ———————— Bienvenida ———————— */
+    .welcome-box { text-align:center; max-width:500px; }
+    .welcome-title { font-size:24px; margin-bottom:20px; color:#333; }
+    .welcome-text { color:#666; margin-bottom:30px; line-height:1.6; }
+    .signed-in-content { display:none; text-align:center; }
+    .user-photo-large { width:100px; height:100px; border-radius:50%; border:3px solid #4285F4; object-fit:cover; margin-bottom:15px; }
+    /* ———————— Perfil ———————— */
+    .profile-header { display:flex; align-items:center; border-bottom:1px solid #eee; padding-bottom:20px; margin-bottom:20px; }
+    .profile-photo { width:120px; height:120px; border-radius:50%; object-fit:cover; border:3px solid #4285F4; margin-right:20px; }
+    .profile-info h3 { font-size:24px; color:#333; margin-bottom:5px; }
+    .profile-info p { color:#666; margin-bottom:10px; }
+    .detail-row { margin-bottom:15px; }
+    .detail-label { font-weight:bold; color:#555; display:block; margin-bottom:5px; }
+    .detail-value { background:#f5f5f5; padding:10px; border:1px solid #ddd; border-radius:5px; }
+    .form-group { margin-bottom:15px; }
+    .form-label { font-weight:bold; color:#555; display:block; margin-bottom:5px; }
+    .form-input, .form-textarea { width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; }
+    .form-textarea { min-height:100px; resize:vertical; }
+    .btn-save { background:#4CAF50; color:#fff; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer; transition:.3s; }
+    .btn-save:hover { background:#45a049; }
+    .error-message, .success-message { display:none; padding:10px; border-radius:5px; margin-bottom:15px; }
+    .error-message { background:#ffebee; color:#c62828; }
+    .success-message { background:#e8f5e9; color:#2e7d32; }
+    /* ———————— Foro ———————— */
+    .create-post-box { background:#f9f9f9; padding:20px; border-radius:5px; margin-bottom:30px; }
+    .create-post-title { font-size:18px; color:#333; margin-bottom:15px; }
+    .tabs { display:flex; justify-content:center; margin-bottom:20px; }
+    .tab { padding:10px 20px; cursor:pointer; background:#f0f0f0; border:none; margin:0 5px; border-radius:5px; font-weight:bold; transition:.3s; }
+    .tab.active { background:#4285F4; color:#fff; }
+    .tab:hover { background:#e0e0e0; }
+    .post-list { margin-top:30px; }
+    .post-item { background:#f9f9f9; padding:20px; border-radius:5px; border-left:4px solid #4285F4; margin-bottom:20px; }
+    .post-header { display:flex; align-items:center; margin-bottom:15px; }
+    .post-author-photo { width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:10px; }
+    .post-author-name { font-weight:bold; color:#333; }
+    .post-date { color:#888; font-size:14px; margin-left:auto; }
+    .post-title { font-size:18px; color:#333; margin-bottom:10px; }
+    .post-content { color:#555; line-height:1.6; }
+    .loader { display:none; text-align:center; padding:20px; }
+    .loader::after { content:"Cargando..."; color:#666; }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">Mi Foro</div>
-                <div class="auth-section">
-                    <button id="btnHeaderLogin" class="btn-login">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                        Iniciar sesión
-                    </button>
-                    <div id="userInfo" class="user-info">
-                        <img id="userPhoto" src="https://via.placeholder.com/32" alt="Foto de perfil">
-                        <span id="userName">Usuario</span>
-                        <button id="btnLogout" class="btn-logout">Salir</button>
-                    </div>
-                </div>
-            </div>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">Mi Foro</div>
+        <nav class="nav-links">
+          <a href="#" id="navHome" class="active">Inicio</a>
+          <a href="#" id="navForum">Foro</a>
+          <a href="#" id="navProfile">Mi Perfil</a>
+        </nav>
+        <div class="auth-section">
+          <button id="btnHeaderLogin" class="btn-login">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+            Iniciar sesión
+          </button>
+          <div id="userInfo" class="user-info">
+            <img id="userPhoto" src="" alt="Foto">
+            <span id="userName"></span>
+            <button id="btnLogout" class="btn-logout">Salir</button>
+          </div>
         </div>
-    </header>
+      </div>
+    </div>
+  </header>
 
-    <main>
-        <div class="container">
-            <div id="welcomeBox" class="welcome-box">
-                <h1 class="welcome-title">Bienvenido a Mi Foro</h1>
-                <p class="welcome-text">
-                    Un espacio para compartir ideas y opiniones con la comunidad.
-                    Regístrate para acceder a todas las funciones del foro.
-                </p>
-                <button id="btnMainLogin" class="btn-login">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                    Registrarse con Google
-                </button>
-                
-                <div id="signedInContent" class="signed-in-content">
-                    <img id="userPhotoLarge" class="user-photo-large" src="https://via.placeholder.com/100" alt="Foto de perfil">
-                    <h2>¡Registro exitoso!</h2>
-                    <p>
-                        Bienvenido <strong id="userNameBig">Usuario</strong>.<br>
-                        Te has registrado correctamente en nuestro foro.
-                    </p>
-                </div>
-            </div>
+  <main>
+    <!-- Bienvenida -->
+    <section id="welcomeBox" class="section welcome-box">
+      <h1 class="welcome-title">Bienvenido a Mi Foro</h1>
+      <p class="welcome-text">Un espacio para compartir ideas y opiniones con la comunidad.</p>
+      <button id="btnMainLogin" class="btn-login">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
+        Registrarse con Google
+      </button>
+      <div id="signedInContent" class="signed-in-content">
+        <img id="userPhotoLarge" class="user-photo-large" src="" alt="">
+        <h2>¡Registro exitoso!</h2>
+        <p>Bienvenido <strong id="userNameBig"></strong>.</p>
+      </div>
+    </section>
+
+    <!-- Perfil -->
+    <section id="profileSection" class="section">
+      <h2 class="welcome-title">Mi Perfil</h2>
+      <div class="profile-header">
+        <img id="profilePhoto" class="profile-photo" src="" alt="">
+        <div class="profile-info">
+          <h3 id="profileName"></h3>
+          <p id="profileEmail"></p>
         </div>
-    </main>
+      </div>
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="detail-label">Biografía</span>
+          <p id="profileBio" class="detail-value"></p>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Ubicación</span>
+          <p id="profileLocation" class="detail-value"></p>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Intereses</span>
+          <p id="profileInterests" class="detail-value"></p>
+        </div>
+      </div>
+      <div id="profileError" class="error-message"></div>
+      <div id="profileSuccess" class="success-message"></div>
+      <div class="profile-form">
+        <h3 class="welcome-title">Editar Perfil</h3>
+        <div class="form-group">
+          <label class="form-label" for="inputBio">Biografía</label>
+          <textarea id="inputBio" class="form-textarea"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputLocation">Ubicación</label>
+          <input id="inputLocation" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputInterests">Intereses</label>
+          <input id="inputInterests" class="form-input">
+        </div>
+        <button id="btnSaveProfile" class="btn-save">Guardar Cambios</button>
+        <div id="profileLoader" class="loader"></div>
+      </div>
+    </section>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <!-- Foro -->
+    <section id="forumSection" class="section">
+      <h2 class="forum-title">Foro de la Comunidad</h2>
+      <div class="create-post-box">
+        <h3 class="create-post-title">Crear publicación</h3>
+        <div class="form-group">
+          <label class="form-label" for="postTitle">Título</label>
+          <input id="postTitle" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="postContent">Contenido</label>
+          <textarea id="postContent" class="form-textarea"></textarea>
+        </div>
+        <div id="postError" class="error-message"></div>
+        <div id="postSuccess" class="success-message"></div>
+        <button id="btnCreatePost" class="btn-save">Publicar</button>
+      </div>
+      <div class="tabs">
+        <button id="tabAllPosts" class="tab active">Todas</button>
+        <button id="tabMyPosts" class="tab">Mis Publicaciones</button>
+      </div>
+      <div id="postsLoader" class="loader"></div>
+      <div id="postsList" class="post-list"></div>
+    </section>
+  </main>
 
-    <script>
-        // Configuración de Firebase
-        const firebaseConfig = {
-            // IMPORTANTE: Reemplazar con tus credenciales de Firebase
-            apiKey: "AIzaSyCL2CctB5ULQg2tkWKKTX20-Aot0aGsVYw",
-            authDomain: "registrocon-97cb2.firebaseapp.com",
-            projectId: "registrocon-97cb2",
-            storageBucket: "registrocon-97cb2.firebasestorage.app",
-            messagingSenderId: "373644979789",
-            appId: "1:373644979789:web:5b08ef46eb8852c59fb604",
-            measurementId: "G-X5Q3RL90PV"
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ————— Configura con tus credenciales de Firebase —————
+    const firebaseConfig = {
+        apiKey: "AIzaSyCL2CctB5ULQg2tkWKKTX20-Aot0aGsVYw",
+        authDomain: "registrocon-97cb2.firebaseapp.com",
+        projectId: "registrocon-97cb2",
+        storageBucket: "registrocon-97cb2.firebasestorage.app",
+        messagingSenderId: "373644979789",
+        appId: "1:373644979789:web:5b08ef46eb8852c59fb604",
+        measurementId: "G-X5Q3RL90PV"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+
+    // ————— Referencias DOM —————
+    const btnHeaderLogin  = document.getElementById('btnHeaderLogin');
+    const btnMainLogin    = document.getElementById('btnMainLogin');
+    const btnLogout       = document.getElementById('btnLogout');
+    const userInfo        = document.getElementById('userInfo');
+    const userName        = document.getElementById('userName');
+    const userNameBig     = document.getElementById('userNameBig');
+    const userPhoto       = document.getElementById('userPhoto');
+    const userPhotoLarge  = document.getElementById('userPhotoLarge');
+    const navHome         = document.getElementById('navHome');
+    const navForum        = document.getElementById('navForum');
+    const navProfile      = document.getElementById('navProfile');
+    const welcomeBox      = document.getElementById('welcomeBox');
+    const signedInContent = document.getElementById('signedInContent');
+    const profileSection  = document.getElementById('profileSection');
+    const forumSection    = document.getElementById('forumSection');
+    const profilePhoto    = document.getElementById('profilePhoto');
+    const profileName     = document.getElementById('profileName');
+    const profileEmail    = document.getElementById('profileEmail');
+    const profileBio      = document.getElementById('profileBio');
+    const profileLocation = document.getElementById('profileLocation');
+    const profileInterests= document.getElementById('profileInterests');
+    const inputBio        = document.getElementById('inputBio');
+    const inputLocation   = document.getElementById('inputLocation');
+    const inputInterests  = document.getElementById('inputInterests');
+    const btnSaveProfile  = document.getElementById('btnSaveProfile');
+    const profileLoader   = document.getElementById('profileLoader');
+    const profileError    = document.getElementById('profileError');
+    const profileSuccess  = document.getElementById('profileSuccess');
+    const postTitle       = document.getElementById('postTitle');
+    const postContent     = document.getElementById('postContent');
+    const btnCreatePost   = document.getElementById('btnCreatePost');
+    const postsList       = document.getElementById('postsList');
+    const postsLoader     = document.getElementById('postsLoader');
+    const tabAllPosts     = document.getElementById('tabAllPosts');
+    const tabMyPosts      = document.getElementById('tabMyPosts');
+    const postError       = document.getElementById('postError');
+    const postSuccess     = document.getElementById('postSuccess');
+
+    let currentUser = null;
+    let currentTab  = 'all';
+
+    // ————— Estado de Auth —————
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        showUserInfo(user);
+        btnHeaderLogin.style.display = 'none';
+        userInfo.style.display      = 'flex';
+        btnMainLogin.style.display  = 'none';
+        signedInContent.style.display = 'block';
+        navForum.style.display      = 'inline';
+        navProfile.style.display    = 'inline';
+        loadUserProfile(user.uid);
+        loadPosts(currentTab);
+      } else {
+        currentUser = null;
+        btnHeaderLogin.style.display = 'flex';
+        userInfo.style.display      = 'none';
+        btnMainLogin.style.display  = 'inline-flex';
+        signedInContent.style.display = 'none';
+        navForum.style.display      = 'none';
+        navProfile.style.display    = 'none';
+        showSection('welcome');
+      }
+    });
+
+    // ————— Login/Logout —————
+    function loginWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(e => alert(e.message));
+    }
+    btnHeaderLogin.addEventListener('click', loginWithGoogle);
+    btnMainLogin.addEventListener('click', loginWithGoogle);
+    btnLogout.addEventListener('click', () => auth.signOut());
+
+    function showUserInfo(user) {
+      userName.textContent       = user.displayName;
+      userNameBig.textContent    = user.displayName;
+      userPhoto.src              = user.photoURL || '';
+      userPhotoLarge.src         = user.photoURL || '';
+    }
+
+    // ————— Secciones/Navegación —————
+    function showSection(name) {
+      welcomeBox.style.display   = name==='welcome'? 'block':'none';
+      profileSection.style.display = name==='profile'? 'block':'none';
+      forumSection.style.display   = name==='forum'? 'block':'none';
+      navHome.classList   .toggle('active', name==='welcome');
+      navProfile.classList.toggle('active', name==='profile');
+      navForum.classList  .toggle('active', name==='forum');
+    }
+    navHome.addEventListener('click', () => showSection('welcome'));
+    navProfile.addEventListener('click', () => showSection('profile'));
+    navForum.addEventListener('click', () => showSection('forum'));
+
+    // ————— Perfil —————
+    function checkUserInFirestore(u) {
+      db.collection('users').doc(u.uid).get().then(doc=>{
+        if(!doc.exists) {
+          db.collection('users').doc(u.uid).set({
+            uid: u.uid,
+            displayName: u.displayName,
+            email: u.email,
+            photoURL: u.photoURL,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            bio:'', location:'', interests:[]
+          });
+        }
+      });
+    }
+    function loadUserProfile(uid) {
+      profileLoader.style.display = 'block';
+      db.collection('users').doc(uid).get()
+        .then(doc=>{
+          profileLoader.style.display = 'none';
+          const d = doc.data();
+          profilePhoto.src   = d.photoURL;
+          profileName.textContent     = d.displayName;
+          profileEmail.textContent    = d.email;
+          profileBio.textContent      = d.bio || '—';
+          profileLocation.textContent = d.location || '—';
+          profileInterests.textContent= d.interests.join(', ') || '—';
+          inputBio.value        = d.bio;
+          inputLocation.value   = d.location;
+          inputInterests.value  = d.interests.join(', ');
+        })
+        .catch(e=>{
+          profileLoader.style.display='none';
+          showErrorMessage(profileError,'No se pudo cargar perfil');
+        });
+    }
+    btnSaveProfile.addEventListener('click',()=>{
+      if(!currentUser) return showErrorMessage(profileError,'Inicia sesión');
+      profileLoader.style.display='block'; hideMessages();
+      const arr = inputInterests.value.split(',').map(i=>i.trim()).filter(i=>i);
+      const data = { bio: inputBio.value, location: inputLocation.value, interests:arr, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+      db.collection('users').doc(currentUser.uid).update(data)
+        .then(()=>{
+          profileLoader.style.display='none';
+          showSuccessMessage(profileSuccess,'Perfil actualizado');
+          loadUserProfile(currentUser.uid);
+        })
+        .catch(e=>{
+          profileLoader.style.display='none'; showErrorMessage(profileError,'Error al guardar');
+        });
+    });
+
+    // ————— Posts —————
+    btnCreatePost.addEventListener('click',()=>{
+      if(!currentUser) return showErrorMessage(postError,'Debes iniciar sesión');
+      const t=postTitle.value.trim(), c=postContent.value.trim();
+      if(!t) return showErrorMessage(postError,'Título obligatorio');
+      if(!c) return showErrorMessage(postError,'Contenido obligatorio');
+      postsLoader.style.display='block'; hideMessages();
+      db.collection('users').doc(currentUser.uid).get().then(doc=>{
+        const u=doc.data();
+        const newPost = {
+          title: t, content: c,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          authorId: currentUser.uid,
+          authorName: u.displayName,
+          authorPhotoURL: u.photoURL
         };
+        db.collection('posts').add(newPost)
+          .then(()=>{
+            postsLoader.style.display='none';
+            showSuccessMessage(postSuccess,'Publicado');
+            postTitle.value=''; postContent.value='';
+            loadPosts(currentTab);
+          })
+          .catch(e=>{
+            postsLoader.style.display='none'; showErrorMessage(postError,'Error al publicar');
+          });
+      });
+    });
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        
-        // Referencias a elementos DOM
-        const btnHeaderLogin = document.getElementById('btnHeaderLogin');
-        const btnMainLogin = document.getElementById('btnMainLogin');
-        const btnLogout = document.getElementById('btnLogout');
-        const userInfo = document.getElementById('userInfo');
-        const userName = document.getElementById('userName');
-        const userNameBig = document.getElementById('userNameBig');
-        const userPhoto = document.getElementById('userPhoto');
-        const userPhotoLarge = document.getElementById('userPhotoLarge');
-        const welcomeBox = document.getElementById('welcomeBox');
-        const signedInContent = document.getElementById('signedInContent');
-
-        // Evento de autenticación
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // Usuario ha iniciado sesión
-                showUserInfo(user);
-                btnHeaderLogin.style.display = 'none';
-                userInfo.style.display = 'flex';
-                btnMainLogin.style.display = 'none';
-                signedInContent.style.display = 'block';
-            } else {
-                // Usuario ha cerrado sesión
-                btnHeaderLogin.style.display = 'flex';
-                userInfo.style.display = 'none';
-                btnMainLogin.style.display = 'inline-flex';
-                signedInContent.style.display = 'none';
-            }
+    function loadPosts(tab) {
+      postsList.innerHTML=''; postsLoader.style.display='block';
+      let q = db.collection('posts').orderBy('createdAt','desc');
+      if(tab==='my' && currentUser) q = q.where('authorId','==',currentUser.uid);
+      q.get()
+        .then(snap=>{
+          postsLoader.style.display='none';
+          if(snap.empty) return postsList.innerHTML='<p style="text-align:center;color:#666">No hay posts.</p>';
+          snap.forEach(d=>{
+            const p = d.data();
+            const date = p.createdAt?.toDate().toLocaleString()||'';
+            const div = document.createElement('div'); div.className='post-item';
+            div.innerHTML = `
+              <div class="post-header">
+                <img class="post-author-photo" src="${p.authorPhotoURL}" alt="">
+                <span class="post-author-name">${p.authorName}</span>
+                <span class="post-date">${date}</span>
+              </div>
+              <h3 class="post-title">${p.title}</h3>
+              <p class="post-content">${p.content}</p>
+            `;
+            postsList.appendChild(div);
+          });
+        })
+        .catch(e=>{
+          postsLoader.style.display='none';
+          postsList.innerHTML='<p style="text-align:center;color:#c62828">Error al cargar.</p>';
         });
+    }
 
-        // Función para iniciar sesión con Google
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .catch(error => {
-                    console.error("Error en autenticación:", error);
-                    alert("Error al iniciar sesión: " + error.message);
-                });
-        }
+    tabAllPosts.addEventListener('click',()=>{
+      currentTab='all'; tabAllPosts.classList.add('active'); tabMyPosts.classList.remove('active');
+      loadPosts('all');
+    });
+    tabMyPosts.addEventListener('click',()=>{
+      currentTab='my'; tabMyPosts.classList.add('active'); tabAllPosts.classList.remove('active');
+      loadPosts('my');
+    });
 
-        // Iniciar sesión con Google (botón del header)
-        btnHeaderLogin.addEventListener('click', loginWithGoogle);
-        
-        // Iniciar sesión con Google (botón principal)
-        btnMainLogin.addEventListener('click', loginWithGoogle);
+    // ————— Mensajes —————
+    function hideMessages() {
+      [postError,postSuccess,profileError,profileSuccess].forEach(el=>el.style.display='none');
+    }
+    function showErrorMessage(el,msg) {
+      el.textContent=msg; el.style.display='block';
+    }
+    function showSuccessMessage(el,msg) {
+      el.textContent=msg; el.style.display='block';
+    }
 
-        // Cerrar sesión
-        btnLogout.addEventListener('click', () => {
-            auth.signOut().catch(error => {
-                console.error("Error al cerrar sesión:", error);
-            });
-        });
-
-        // Mostrar información del usuario
-        function showUserInfo(user) {
-            userName.textContent = user.displayName;
-            userNameBig.textContent = user.displayName;
-            
-            if (user.photoURL) {
-                userPhoto.src = user.photoURL;
-                userPhotoLarge.src = user.photoURL;
-            }
-        }
-    </script>
+    // ————— Inicialización —————
+    document.addEventListener('DOMContentLoaded',()=>{
+      showSection('welcome');
+    });
+  </script>
 </body>
 </html>
