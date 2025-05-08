@@ -375,6 +375,59 @@
       });
     });
 
+    btnCreatePost.addEventListener('click', () => {
+  if (!currentUser) {
+    showErrorMessage(postError, "Debes iniciar sesión");
+    return;
+  }
+  const title = postTitle.value.trim();
+  const content = postContent.value.trim();
+  if (!title) {
+    showErrorMessage(postError, "Título obligatorio");
+    return;
+  }
+  if (!content) {
+    showErrorMessage(postError, "Contenido obligatorio");
+    return;
+  }
+  postsLoader.style.display = 'block';
+  hideMessages();
+
+  db.collection('users').doc(currentUser.uid).get()
+    .then(doc => {
+      // Si no existe, usamos los datos de currentUser
+      const u = doc.exists ? doc.data() : {};
+      const authorName     = u.displayName  || currentUser.displayName  || 'Usuario anónimo';
+      const authorPhotoURL = u.photoURL     || currentUser.photoURL     || '';
+
+      const newPost = {
+        title,
+        content,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        authorId: currentUser.uid,
+        authorName,
+        authorPhotoURL
+      };
+
+      return db.collection('posts').add(newPost);
+    })
+    .then(() => {
+      postsLoader.style.display = 'none';
+      showSuccessMessage(postSuccess, "Publicado correctamente");
+      postTitle.value = "";
+      postContent.value = "";
+      loadPosts(currentTab);
+    })
+    .catch(error => {
+      postsLoader.style.display = 'none';
+      console.error("Error al crear publicación:", error);
+      showErrorMessage(postError, "Error al publicar. Inténtalo de nuevo.");
+    });
+});
+
+
+
+
     function loadPosts(tab) {
       postsList.innerHTML=''; postsLoader.style.display='block';
       let q = db.collection('posts').orderBy('createdAt','desc');
