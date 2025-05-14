@@ -117,24 +117,37 @@
     }
 
     function loadComments(id) {
-      const container = document.getElementById("comments");
-      db.collection("posts").doc(id).collection("comments")
-        .orderBy("createdAt", "asc")
-        .get().then(snapshot => {
-          container.innerHTML = "";
-          if (snapshot.empty) {
-            container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
-            return;
-          }
-          snapshot.forEach(doc => {
-            const c = doc.data();
-            const div = document.createElement("div");
-            div.className = "comment";
-            div.innerHTML = `<strong>${c.authorName}</strong><div>${c.text}</div>`;
-            container.appendChild(div);
-          });
-        });
-    }
+  const container = document.getElementById("comments");
+  db.collection("posts").doc(id).collection("comments")
+    .orderBy("createdAt", "asc")
+    .get()
+    .then(snapshot => {
+      container.innerHTML = "";
+      if (snapshot.empty) {
+        container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const c = doc.data();
+        const date = c.createdAt?.toDate().toLocaleString() || '';
+        const div = document.createElement("div");
+        div.className = "comment";
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px;">
+            <img src="${c.authorPhotoURL}" alt="foto" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+            <div>
+              <strong>${c.authorName}</strong><br>
+              <small style="color:#888">${date}</small>
+            </div>
+          </div>
+          <div style="margin-top:8px;">${c.text}</div>
+        `;
+        container.appendChild(div);
+      });
+    });
+}
+
 
     function addComment() {
       const input = document.getElementById("new-comment");
