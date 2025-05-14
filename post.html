@@ -1,69 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ver publicación</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    .post-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .post-content {
-      color: #444;
-      margin-bottom: 20px;
-    }
-    .comment {
-      border-top: 1px solid #eee;
-      padding: 10px 0;
-    }
-    .comment strong {
-      display: block;
-      margin-bottom: 5px;
-    }
-    #new-comment {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 15px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #45a049;
-    }
-    .back-link {
-      display: inline-block;
-      margin-top: 20px;
-      text-decoration: none;
-      color: #4285F4;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .post-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+    .post-content { margin-bottom: 20px; color: #444; }
+    .comment { border-top: 1px solid #eee; padding: 10px 0; }
+    #new-comment { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    button { margin-top: 10px; padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #45a049; }
+    .btn-small { font-size: 12px; padding: 5px 8px; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; }
+    .edit-btn { background-color: #1976d2; color: white; }
+    .delete-btn { background-color: #d32f2f; color: white; }
+    .back-link { display: inline-block; margin-top: 20px; text-decoration: none; color: #4285F4; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -80,7 +36,6 @@
   </div>
 
   <script>
-    // Configuración Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCL2CctB5ULQg2tkWKKTX20-Aot0aGsVYw",
       authDomain: "registrocon-97cb2.firebaseapp.com",
@@ -100,7 +55,7 @@
       currentUser = user;
       if (postId) {
         loadPost(postId);
-        loadComments(postId);
+        listenToComments(postId);
       }
     });
 
@@ -116,38 +71,46 @@
       });
     }
 
-    function loadComments(id) {
-  const container = document.getElementById("comments");
-  db.collection("posts").doc(id).collection("comments")
-    .orderBy("createdAt", "asc")
-    .get()
-    .then(snapshot => {
-      container.innerHTML = "";
-      if (snapshot.empty) {
-        container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
-        return;
-      }
+    function listenToComments(id) {
+      const container = document.getElementById("comments");
+      db.collection("posts").doc(id).collection("comments")
+        .orderBy("createdAt", "asc")
+        .onSnapshot(snapshot => {
+          container.innerHTML = "";
+          if (snapshot.empty) {
+            container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
+            return;
+          }
 
-      snapshot.forEach(doc => {
-        const c = doc.data();
-        const date = c.createdAt?.toDate().toLocaleString() || '';
-        const div = document.createElement("div");
-        div.className = "comment";
-        div.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px;">
-            <img src="${c.authorPhotoURL}" alt="foto" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-            <div>
-              <strong>${c.authorName}</strong><br>
-              <small style="color:#888">${date}</small>
-            </div>
-          </div>
-          <div style="margin-top:8px;">${c.text}</div>
-        `;
-        container.appendChild(div);
-      });
-    });
-}
-
+          snapshot.forEach(doc => {
+            const c = doc.data();
+            const cid = doc.id;
+            const date = c.createdAt?.toDate().toLocaleString() || '';
+            const div = document.createElement("div");
+            div.className = "comment";
+            div.innerHTML = `
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+                <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}"
+                     style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                <div>
+                  <strong>${c.authorName}</strong><br>
+                  <small style="color:#888;">${date}</small>
+                </div>
+              </div>
+              <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
+              ${
+                currentUser && currentUser.uid === c.authorId ? `
+                  <div style="margin-left:50px; margin-top:5px;">
+                    <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
+                    <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
+                  </div>
+                ` : ''
+              }
+            `;
+            container.appendChild(div);
+          });
+        });
+    }
 
     function addComment() {
       const input = document.getElementById("new-comment");
@@ -161,8 +124,24 @@
         authorPhotoURL: currentUser.photoURL || ""
       }).then(() => {
         input.value = "";
-        loadComments(postId);
       });
+    }
+
+    function editComment(commentId, oldText) {
+      const newText = prompt("Editar comentario:", oldText);
+      if (newText !== null) {
+        db.collection("posts").doc(postId).collection("comments").doc(commentId).update({
+          text: newText,
+          editedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    }
+
+    function deleteComment(commentId) {
+      const confirmDelete = confirm("¿Seguro que deseas eliminar este comentario?");
+      if (confirmDelete) {
+        db.collection("posts").doc(postId).collection("comments").doc(commentId).delete();
+      }
     }
   </script>
 </body>
