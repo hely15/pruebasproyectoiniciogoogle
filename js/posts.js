@@ -1,232 +1,156 @@
-// Referencias DOM para posts
-const postTitle = document.getElementById("postTitle")
-const postTopic = document.getElementById("postTopic")
-const postContent = document.getElementById("postContent")
-const btnCreatePost = document.getElementById("btnCreatePost")
-const postsList = document.getElementById("postsList")
-const postsLoader = document.getElementById("postsLoader")
-const tabAllPosts = document.getElementById("tabAllPosts")
-const tabMyPosts = document.getElementById("tabMyPosts")
-const postError = document.getElementById("postError")
-const postSuccess = document.getElementById("postSuccess")
-const searchInput = document.getElementById("searchInput")
-const btnSearch = document.getElementById("btnSearch")
-const filterChips = document.querySelectorAll(".filter-chip")
+// Import necessary modules (assuming these are available globally or defined elsewhere)
+// For example:
+import { getUrlParameter, auth, db, firebase } from './utils';
 
-// Variables para el estado actual
-let currentTab = "all"
-let currentFilter = "all"
-let searchQuery = ""
+// If the modules are not available as imports, you can define them or retrieve them from the global scope.
+// Example (if they are globally available):
+const getUrlParameter = (param) => {
+  const urlParams = new URLSearchParams(window.location.search)
+  return urlParams.get(param)
+}
+const auth = firebase.auth() // Assuming firebase is globally available
+const db = firebase.firestore() // Assuming firebase is globally available
 
-// Declaración de variables faltantes
-let db // Firebase database instance
-let currentUser // Current logged-in user
-let showErrorMessage // Function to display error messages
-let hideMessages // Function to hide messages
-const topicMap = {} // Map of topic IDs to names
-let firebase // Firebase instance
-let showSuccessMessage // Function to display success messages
+// Variables para la página de post
+const postId = getUrlParameter("id")
+let currentUser = null
+let unsubscribeComments = null
 
-// Función para cargar posts
-function loadPosts(tab, topicFilter, query) {
-  if (!postsList) return
+// Referencias DOM
+const postContainer = document.getElementById("post")
+const commentsContainer = document.getElementById("comments")
+const newCommentInput = document.getElementById("new-comment")
+const btnAddComment = document.getElementById("btnAddComment")
+const orderSelect = document.getElementById("orderSelect")
 
-  postsList.innerHTML = ""
-  if (postsLoader) postsLoader.style.display = "block"
-
-  let q = db.collection("posts").orderBy("createdAt", "desc")
-
-  // Filtrar por autor si es necesario
-  if (tab === "my" && currentUser) {
-    q = q.where("authorId", "==", currentUser.uid)
+// Escuchar cambios en el estado de autenticación
+auth.onAuthStateChanged((user) => {
+  currentUser = user
+  if (postId) {
+    loadPost(postId)
+    listenToComments(postId)
   }
+})
 
-  // Filtrar por tema si es necesario
-  if (topicFilter !== "all") {
-    q = q.where("topic", "==", topicFilter)
-  }
+// Cargar detalles del post
+function loadPost(id) {
+  db.collection("posts")
+    .doc(id)
+    .get()
+    .then((doc) => {
+      if (!doc.exists) return
+      const p = doc.data()
+      postContainer.innerHTML = `
+      <div class="post-title">${p.title}</div>
+      <div class="post-content">${p.content}</div>
+      <div style="color: #888">Por ${p.authorName}</div>
+    `
+    })
+}
 
-  q.get()
-    .then((snap) => {
-      if (postsLoader) postsLoader.style.display = "none"
+// Escuchar cambios en los comentarios
+function listenToComments(postId) {
+  const order = orderSelect.value
 
-      if (snap.empty) {
-        return (postsList.innerHTML = '<p style="text-align:center;color:#666">No hay posts.</p>')
+  // Detener anterior listener si existe
+  if (unsubscribeComments) unsubscribeComments()
+
+  unsubscribeComments = db
+    .collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .orderBy("createdAt", order)
+    .onSnapshot((snapshot) => {
+      commentsContainer.innerHTML = ""
+      if (snapshot.empty) {
+        commentsContainer.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>"
+        return
       }
 
-      let posts = []
-      snap.forEach((d) => {
-        posts.push({ id: d.id, ...d.data() })
-      })
-
-      // Filtrar por búsqueda si hay una consulta
-      if (query) {
-        const queryLower = query.toLowerCase()
-        posts = posts.filter(
-          (p) =>
-            p.title.toLowerCase().includes(queryLower) ||
-            p.content.toLowerCase().includes(queryLower) ||
-            (p.topicName && p.topicName.toLowerCase().includes(queryLower)),
-        )
-      }
-
-      if (posts.length === 0) {
-        return (postsList.innerHTML =
-          '<p style="text-align:center;color:#666">No hay resultados para esta búsqueda.</p>')
-      }
-
-      posts.forEach((p) => {
-        const date = p.createdAt?.toDate().toLocaleString() || ""
+      snapshot.forEach((doc) => {
+        const c = doc.data()
+        const cid = doc.id
+        const date = c.createdAt?.toDate().toLocaleString() || ""
         const div = document.createElement("div")
-        div.className = "post-item"
-
+        div.className = "comment"
         div.innerHTML = `
-          <div class="post-header">
-            <img class="post-author-photo" src="${p.authorPhotoURL}" alt="">
-            <span class="post-author-name">${p.authorName}</span>
-            <span class="post-date">${date}</span>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+            <img src="${c.authorPhotoURL || "https://via.placeholder.com/40"}"
+                 style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+            <div>
+              <strong>${c.authorName}</strong><br>
+              <small style="color:#888;">${date}</small>
+            </div>
           </div>
-          ${p.topicName ? `<span class="post-topic">${p.topicName}</span>` : ""}
-          <h3 class="post-title">${p.title}</h3>
-          <p class="post-content">${p.content}</p>
+          <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
+          ${
+            currentUser && currentUser.uid === c.authorId
+              ? `
+              <div style="margin-left:50px; margin-top:5px;">
+                <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, "\\`")}\`)">✏️ Editar</button>
+                <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
+              </div>
+            `
+              : ""
+          }
         `
-
-        const btn = document.createElement("a")
-        btn.href = `post.html?id=${p.id}`
-        btn.textContent = "Responder"
-        btn.className = "btn-save"
-        btn.style.marginTop = "10px"
-        btn.style.display = "inline-block"
-
-        div.appendChild(btn)
-        postsList.appendChild(div)
+        commentsContainer.appendChild(div)
       })
     })
-    .catch((e) => {
-      if (postsLoader) postsLoader.style.display = "none"
-      postsList.innerHTML = '<p style="text-align:center;color:#c62828">Error al cargar.</p>'
-      console.error("Error al cargar posts:", e)
+}
+
+// Añadir un comentario
+function addComment() {
+  const text = newCommentInput.value.trim()
+  if (!text || !currentUser) return alert("Debes iniciar sesión y escribir un comentario.")
+
+  db.collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .add({
+      text: text,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      authorId: currentUser.uid,
+      authorName: currentUser.displayName,
+      authorPhotoURL: currentUser.photoURL || "",
+    })
+    .then(() => {
+      newCommentInput.value = ""
     })
 }
 
-// Event listener para crear post
-if (btnCreatePost) {
-  btnCreatePost.addEventListener("click", () => {
-    if (!currentUser) {
-      showErrorMessage(postError, "Debes iniciar sesión")
-      return
-    }
-
-    const title = postTitle.value.trim()
-    const content = postContent.value.trim()
-    const topic = postTopic.value.trim()
-
-    if (!title) {
-      showErrorMessage(postError, "Título obligatorio")
-      return
-    }
-    if (!content) {
-      showErrorMessage(postError, "Contenido obligatorio")
-      return
-    }
-    if (!topic) {
-      showErrorMessage(postError, "Debes seleccionar un tema")
-      return
-    }
-
-    if (postsLoader) postsLoader.style.display = "block"
-    hideMessages()
-
-    db.collection("users")
-      .doc(currentUser.uid)
-      .get()
-      .then((doc) => {
-        // Si no existe, usamos los datos de currentUser
-        const u = doc.exists ? doc.data() : {}
-        const authorName = u.displayName || currentUser.displayName || "Usuario anónimo"
-        const authorPhotoURL = u.photoURL || currentUser.photoURL || ""
-
-        const newPost = {
-          title,
-          content,
-          topic,
-          topicName: topicMap[topic],
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          authorId: currentUser.uid,
-          authorName,
-          authorPhotoURL,
-        }
-
-        return db.collection("posts").add(newPost)
-      })
-      .then(() => {
-        if (postsLoader) postsLoader.style.display = "none"
-        showSuccessMessage(postSuccess, "Publicado correctamente")
-        if (postTitle) postTitle.value = ""
-        if (postContent) postContent.value = ""
-        if (postTopic) postTopic.value = ""
-        loadPosts(currentTab, currentFilter, searchQuery)
-      })
-      .catch((error) => {
-        if (postsLoader) postsLoader.style.display = "none"
-        console.error("Error al crear publicación:", error)
-        showErrorMessage(postError, "Error al publicar. Inténtalo de nuevo.")
-      })
-  })
-}
-
-// Event listeners para filtros de pestañas
-if (tabAllPosts) {
-  tabAllPosts.addEventListener("click", () => {
-    currentTab = "all"
-    tabAllPosts.classList.add("active")
-    if (tabMyPosts) tabMyPosts.classList.remove("active")
-    loadPosts(currentTab, currentFilter, searchQuery)
-  })
-}
-
-if (tabMyPosts) {
-  tabMyPosts.addEventListener("click", () => {
-    currentTab = "my"
-    tabMyPosts.classList.add("active")
-    if (tabAllPosts) tabAllPosts.classList.remove("active")
-    loadPosts(currentTab, currentFilter, searchQuery)
-  })
-}
-
-// Event listener para búsqueda
-if (btnSearch) {
-  btnSearch.addEventListener("click", () => {
-    searchQuery = searchInput.value.trim()
-    loadPosts(currentTab, currentFilter, searchQuery)
-  })
-}
-
-// Permitir búsqueda al presionar Enter
-if (searchInput) {
-  searchInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      searchQuery = searchInput.value.trim()
-      loadPosts(currentTab, currentFilter, searchQuery)
-    }
-  })
-}
-
-// Event listeners para filtros por tema
-if (filterChips) {
-  filterChips.forEach((chip) => {
-    chip.addEventListener("click", () => {
-      // Desactivar todos los chips
-      filterChips.forEach((c) => c.classList.remove("active"))
-
-      // Activar el chip seleccionado
-      chip.classList.add("active")
-
-      // Actualizar filtro actual
-      currentFilter = chip.dataset.topic
-
-      // Recargar posts con el nuevo filtro
-      loadPosts(currentTab, currentFilter, searchQuery)
+// Editar un comentario
+function editComment(commentId, oldText) {
+  const newText = prompt("Editar comentario:", oldText)
+  if (newText !== null) {
+    db.collection("posts").doc(postId).collection("comments").doc(commentId).update({
+      text: newText,
+      editedAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
+  }
+}
+
+// Eliminar un comentario
+function deleteComment(commentId) {
+  const confirmDelete = confirm("¿Seguro que deseas eliminar este comentario?")
+  if (confirmDelete) {
+    db.collection("posts").doc(postId).collection("comments").doc(commentId).delete()
+  }
+}
+
+// Event listeners
+if (orderSelect) {
+  orderSelect.addEventListener("change", () => {
+    if (postId) {
+      listenToComments(postId)
+    }
   })
 }
+
+if (btnAddComment) {
+  btnAddComment.addEventListener("click", addComment)
+}
+
+// Exponer funciones para uso en HTML
+window.editComment = editComment
+window.deleteComment = deleteComment

@@ -1,17 +1,12 @@
-// Este archivo se encarga de inicializar la aplicación
-// y coordinar los diferentes módulos
-
-// Inicializar la aplicación cuando el DOM esté listo
+// Inicialización de la aplicación
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Aplicación inicializada")
-
-  // Declarar la función showSection (simulando una importación o definición)
+  // Declarar la función showSection (o importarla si está en otro archivo)
   function showSection(sectionId) {
-    console.log(`Mostrando sección: ${sectionId}`)
-    // Aquí iría la lógica real para mostrar la sección
+    // Aquí iría la lógica para mostrar la sección correspondiente
+    console.log("Mostrando sección:", sectionId)
   }
 
-  // Mostrar la sección inicial
+  // Mostrar la sección de bienvenida por defecto
   if (typeof showSection === "function") {
     showSection("welcome")
   }

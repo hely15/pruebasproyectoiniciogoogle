@@ -1,0 +1,152 @@
+/* ———————— Foro ———————— */
+.search-box {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.search-input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.search-btn {
+  background: #4285f4;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.search-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.filter-chip {
+  background: #e0e0e0;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.filter-chip:hover {
+  background: #d0d0d0;
+}
+
+.filter-chip.active {
+  background: #4285f4;
+  color: #fff;
+}
+
+.create-post-box {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 30px;
+}
+
+.create-post-title {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  background: #f0f0f0;
+  border: none;
+  margin: 0 5px;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: .3s;
+}
+
+.tab.active {
+  background: #4285f4;
+  color: #fff;
+}
+
+.tab:hover {
+  background: #e0e0e0;
+}
+
+.post-list {
+  margin-top: 30px;
+}
+
+.post-item {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  border-left: 4px solid #4285f4;
+  margin-bottom: 20px;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.post-author-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.post-author-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.post-date {
+  color: #888;
+  font-size: 14px;
+  margin-left: auto;
+}
+
+.post-title {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.post-content {
+  color: #555;
+  line-height: 1.6;
+}
+
+.post-topic {
+  display: inline-block;
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}

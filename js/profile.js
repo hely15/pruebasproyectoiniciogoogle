@@ -13,75 +13,87 @@ const profileLoader = document.getElementById("profileLoader")
 const profileError = document.getElementById("profileError")
 const profileSuccess = document.getElementById("profileSuccess")
 
-// Declaración de variables (asumiendo que se inicializan en otro lugar)
-let db
-let currentUser
-let firebase
+// Initialize Firebase (replace with your actual Firebase configuration)
+const firebaseConfig = {
+  apiKey: "AIzaSyCL2CctB5ULQg2tkWKKTX20-Aot0aGsVYw",
+  authDomain: "registrocon-97cb2.firebaseapp.com",
+  projectId: "registrocon-97cb2",
+  storageBucket: "registrocon-97cb2.firebasestorage.app",
+  messagingSenderId: "373644979789",
+  appId: "1:373644979789:web:5b08ef46eb8852c59fb604",
+  measurementId: "G-X5Q3RL90PV",
+}
 
-// Funciones auxiliares (asumiendo que se definen en otro lugar)
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig)
+
+// Get a reference to the database
+const db = firebase.firestore()
+
+// Example current user (replace with actual authentication)
+const currentUser = firebase.auth().currentUser
+
+// Function to show error messages
 function showErrorMessage(element, message) {
-  console.error(message) // Placeholder
-  if (element) element.textContent = message
+  element.textContent = message
+  element.style.display = "block"
 }
 
-function hideMessages() {
-  // Placeholder
-}
-
+// Function to show success messages
 function showSuccessMessage(element, message) {
-  // Placeholder
-  if (element) element.textContent = message
+  element.textContent = message
+  element.style.display = "block"
 }
 
-// Función para cargar el perfil del usuario
-function loadUserProfile(uid) {
-  if (profileLoader) profileLoader.style.display = "block"
+// Function to hide messages
+function hideMessages() {
+  profileError.style.display = "none"
+  profileSuccess.style.display = "none"
+}
 
+// Cargar perfil del usuario
+function loadUserProfile(uid) {
+  if (!profileLoader) return
+
+  profileLoader.style.display = "block"
   db.collection("users")
     .doc(uid)
     .get()
     .then((doc) => {
-      if (profileLoader) profileLoader.style.display = "none"
-
-      if (doc.exists) {
-        const d = doc.data()
-
-        if (profilePhoto) profilePhoto.src = d.photoURL
-        if (profileName) profileName.textContent = d.displayName
-        if (profileEmail) profileEmail.textContent = d.email
-        if (profileBio) profileBio.textContent = d.bio || "—"
-        if (profileLocation) profileLocation.textContent = d.location || "—"
-        if (profileInterests) profileInterests.textContent = d.interests.join(", ") || "—"
-
-        if (inputBio) inputBio.value = d.bio || ""
-        if (inputLocation) inputLocation.value = d.location || ""
-        if (inputInterests) inputInterests.value = d.interests.join(", ") || ""
-      }
+      profileLoader.style.display = "none"
+      const d = doc.data()
+      profilePhoto.src = d.photoURL
+      profileName.textContent = d.displayName
+      profileEmail.textContent = d.email
+      profileBio.textContent = d.bio || "—"
+      profileLocation.textContent = d.location || "—"
+      profileInterests.textContent = d.interests.join(", ") || "—"
+      inputBio.value = d.bio
+      inputLocation.value = d.location
+      inputInterests.value = d.interests.join(", ")
     })
     .catch((e) => {
-      if (profileLoader) profileLoader.style.display = "none"
+      profileLoader.style.display = "none"
       showErrorMessage(profileError, "No se pudo cargar perfil")
-      console.error("Error al cargar perfil:", e)
     })
 }
 
-// Event listener para guardar cambios en el perfil
+// Guardar cambios en el perfil
 if (btnSaveProfile) {
   btnSaveProfile.addEventListener("click", () => {
     if (!currentUser) return showErrorMessage(profileError, "Inicia sesión")
 
-    if (profileLoader) profileLoader.style.display = "block"
+    profileLoader.style.display = "block"
     hideMessages()
 
-    const interestsArray = inputInterests.value
+    const arr = inputInterests.value
       .split(",")
       .map((i) => i.trim())
       .filter((i) => i)
-
     const data = {
       bio: inputBio.value,
       location: inputLocation.value,
-      interests: interestsArray,
+      interests: arr,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     }
 
@@ -89,14 +101,13 @@ if (btnSaveProfile) {
       .doc(currentUser.uid)
       .update(data)
       .then(() => {
-        if (profileLoader) profileLoader.style.display = "none"
+        profileLoader.style.display = "none"
         showSuccessMessage(profileSuccess, "Perfil actualizado")
         loadUserProfile(currentUser.uid)
       })
       .catch((e) => {
-        if (profileLoader) profileLoader.style.display = "none"
+        profileLoader.style.display = "none"
         showErrorMessage(profileError, "Error al guardar")
-        console.error("Error al guardar perfil:", e)
       })
   })
 }
