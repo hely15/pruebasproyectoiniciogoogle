@@ -1,10 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ver publicación</title>
+  <link rel="stylesheet" href="css/post-styles.css">
+</head>
+<body>
+  <header>
+    <img src="Diseño Proyecto Progresivo Pag 1-05.png" alt="">
+  </header>
+  <div class="container">
+    <div id="post"></div>
+
+    <h3>Comentarios</h3>
+    <label for="orderSelect"><strong>Ordenar por:</strong></label>
+    <select id="orderSelect">
+      <option value="desc">Más recientes</option>
+      <option value="asc">Más antiguos</option>
+    </select>
+    <div id="comments"></div>
+
+    <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
+    <button id="btnAddComment">Comentar</button>
+
+    <br><a href="index.html" class="back-link">⬅ Volver al foro</a>
+  </div>
+
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -301,5 +324,4 @@
     }
   </script>
 </body>
-
 </html>
