@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,25 +9,98 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .post-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-    .post-content { margin-bottom: 20px; color: #444; }
-    .comment { border-top: 1px solid #eee; padding: 10px 0; }
-    #new-comment { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; }
-    button { margin-top: 10px; padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #45a049; }
-    .btn-small { font-size: 12px; padding: 5px 8px; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; }
-    .edit-btn { background-color: #1976d2; color: white; }
-    .delete-btn { background-color: #d32f2f; color: white; }
-    .back-link { display: inline-block; margin-top: 20px; text-decoration: none; color: #4285F4; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .post-content {
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    .comment {
+      border-top: 1px solid #eee;
+      padding: 10px 0;
+    }
+
+    #new-comment {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .btn-small {
+      font-size: 12px;
+      padding: 5px 8px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .edit-btn {
+      background-color: #1976d2;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #d32f2f;
+      color: white;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #4285F4;
+      font-weight: bold;
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div id="post"></div>
 
     <h3>Comentarios</h3>
+    <label for="orderSelect"><strong>Ordenar por:</strong></label>
+    <select id="orderSelect">
+      <option value="desc">Más recientes</option>
+      <option value="asc">Más antiguos</option>
+    </select>
     <div id="comments"></div>
 
     <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
@@ -98,8 +172,7 @@
                 </div>
               </div>
               <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
-              ${
-                currentUser && currentUser.uid === c.authorId ? `
+              ${currentUser && currentUser.uid === c.authorId ? `
                   <div style="margin-left:50px; margin-top:5px;">
                     <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
                     <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
@@ -143,6 +216,61 @@
         db.collection("posts").doc(postId).collection("comments").doc(commentId).delete();
       }
     }
+    let unsubscribeComments = null;
+
+document.getElementById("orderSelect").addEventListener("change", () => {
+  if (postId) {
+    listenToComments(postId); // Recarga los comentarios con el nuevo orden
+  }
+});
+
+function listenToComments(postId) {
+  const container = document.getElementById("comments");
+  const order = document.getElementById("orderSelect").value;
+
+  // Detener anterior listener si existe
+  if (unsubscribeComments) unsubscribeComments();
+
+  unsubscribeComments = db.collection("posts").doc(postId)
+    .collection("comments")
+    .orderBy("createdAt", order)
+    .onSnapshot(snapshot => {
+      container.innerHTML = "";
+      if (snapshot.empty) {
+        container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const c = doc.data();
+        const cid = doc.id;
+        const date = c.createdAt?.toDate().toLocaleString() || '';
+        const div = document.createElement("div");
+        div.className = "comment";
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+            <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}"
+                 style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+            <div>
+              <strong>${c.authorName}</strong><br>
+              <small style="color:#888;">${date}</small>
+            </div>
+          </div>
+          <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
+          ${
+            currentUser && currentUser.uid === c.authorId ? `
+              <div style="margin-left:50px; margin-top:5px;">
+                <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
+                <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
+              </div>
+            ` : ''
+          }
+        `;
+        container.appendChild(div);
+      });
+    });
+}
   </script>
 </body>
+
 </html>
