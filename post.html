@@ -111,22 +111,25 @@
 </head>
 
 <body>
-  <div class="container">
-    <div id="post"></div>
+   <header>
+    <img src="Diseño Proyecto Progresivo Pag 1-05.png" alt="">
+  </header>
+    <div class="container">
+      <div id="post"></div>
 
-    <h3>Comentarios</h3>
-    <label for="orderSelect"><strong>Ordenar por:</strong></label>
-    <select id="orderSelect">
-      <option value="desc">Más recientes</option>
-      <option value="asc">Más antiguos</option>
-    </select>
-    <div id="comments"></div>
+      <h3>Comentarios</h3>
+      <label for="orderSelect"><strong>Ordenar por:</strong></label>
+      <select id="orderSelect">
+        <option value="desc">Más recientes</option>
+        <option value="asc">Más antiguos</option>
+      </select>
+      <div id="comments"></div>
 
-    <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
-    <button onclick="addComment()">Comentar</button>
+      <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
+      <button onclick="addComment()">Comentar</button>
 
-    <br><a href="index.html" class="back-link">⬅ Volver al foro</a>
-  </div>
+      <br><a href="index.html" class="back-link">⬅ Volver al foro</a>
+    </div>
 
   <script>
     const firebaseConfig = {
