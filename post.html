@@ -3,40 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ver publicación</title>
+  <title>Ver publicación - Mi Foro</title>
   <link rel="stylesheet" href="styles/main.css">
-  <link rel="stylesheet" href="styles/post.css">
 </head>
-<body>
-  <header>
-    <img src="Diseño Proyecto Progresivo Pag 1-05.png" alt="Logo">
+<body class="post-page">
+  <header class="post-header">
+    <div class="container">
+      <img src="Diseño Proyecto Progresivo Pag 1-05.png" alt="Logo" class="post-logo">
+    </div>
   </header>
-  
-  <div class="container">
-    <div id="post"></div>
 
-    <h3>Comentarios</h3>
-    <label for="orderSelect"><strong>Ordenar por:</strong></label>
-    <select id="orderSelect">
-      <option value="desc">Más recientes</option>
-      <option value="asc">Más antiguos</option>
-    </select>
-    <div id="comments"></div>
+  <main>
+    <div class="container post-container">
+      <div id="post" class="post-detail"></div>
 
-    <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
-    <button id="btnAddComment">Comentar</button>
+      <div class="comments-section">
+        <h3 class="comments-title">Comentarios</h3>
+        
+        <div class="comments-order">
+          <label for="orderSelect"><strong>Ordenar por:</strong></label>
+          <select id="orderSelect" class="order-select">
+            <option value="desc">Más recientes</option>
+            <option value="asc">Más antiguos</option>
+          </select>
+        </div>
+        
+        <div id="comments" class="comments-list"></div>
 
-    <br><a href="index.html" class="back-link">⬅ Volver al foro</a>
-  </div>
+        <div class="comment-form">
+          <textarea id="new-comment" class="comment-textarea" placeholder="Escribe un comentario..."></textarea>
+          <button id="btnAddComment" class="btn-comment">Comentar</button>
+        </div>
+      </div>
+
+      <a href="index.html" class="back-link">⬅ Volver al foro</a>
+    </div>
+  </main>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  
+  <!-- Main JavaScript -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL2CctB5ULQg2tkWKKTX20-Aot0aGsVYw",
+      authDomain: "registrocon-97cb2.firebaseapp.com",
+      projectId: "registrocon-97cb2",
+      storageBucket: "registrocon-97cb2.appspot.com",
+      messagingSenderId: "373644979789",
+      appId: "1:373644979789:web:5b08ef46eb8852c59fb604"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-  <!-- Módulos JavaScript -->
-  <script src="js/config.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/post.js"></script>
+    const postId = new URLSearchParams(location.search).get("id");
+    let currentUser = null;
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      if (postId) {
+        loadPost(postId);
+        listenToComments(postId);
+      }
+    });
+
+    function loadPost(id) {
+      db.collection("posts").doc(id).get().then(doc => {
+        if (!doc.exists) return;
+        const p = doc.data();
+        document.getElementById("post").innerHTML = `
+          <div class="post-title">${p.title}</div>
+          <div class="post-content">${p.content}</div>
+          <div style="color: #888">Por ${p.authorName}</div>
+        `;
+      });
+    }
+
+    let unsubscribeComments = null;
+
+document.getElementById("orderSelect").addEventListener("change", () => {
+  if (postId) {
+    listenToComments(postId); // Recarga los comentarios con el nuevo orden
+  }
+});
+
+function listenToComments(postId) {
+  const container = document.getElementById("comments");
+  const order = document.getElementById("orderSelect").value;
+
+  // Detener anterior listener si existe
+  if (unsubscribeComments) unsubscribeComments();
+
+  unsubscribeComments = db.collection("posts").doc(postId)
+    .collection("comments")
+    .orderBy("createdAt", order)
+    .onSnapshot(snapshot => {
+      container.innerHTML = "";
+      if (snapshot.empty) {
+        container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const c = doc.data();
+        const cid = doc.id;
+        const date = c.createdAt?.toDate().toLocaleString() || '';
+        const div = document.createElement("div");
+        div.className = "comment";
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+            <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}"
+                 style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+            <div>
+              <strong>${c.authorName}</strong><br>
+              <small style="color:#888;">${date}</small>
+            </div>
+          </div>
+          <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
+          ${
+            currentUser && currentUser.uid === c.authorId ? `
+              <div style="margin-left:50px; margin-top:5px;">
+                <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
+                <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
+              </div>
+            ` : ''
+          }
+        `;
+        container.appendChild(div);
+      });
+    });
+}
+
+    function addComment() {
+      const input = document.getElementById("new-comment");
+      const text = input.value.trim();
+      if (!text || !currentUser) return alert("Debes iniciar sesión y escribir un comentario.");
+      db.collection("posts").doc(postId).collection("comments").add({
+        text: text,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        authorId: currentUser.uid,
+        authorName: currentUser.displayName,
+        authorPhotoURL: currentUser.photoURL || ""
+      }).then(() => {
+        input.value = "";
+      });
+    }
+
+    function editComment(commentId, oldText) {
+      const newText = prompt("Editar comentario:", oldText);
+      if (newText !== null) {
+        db.collection("posts").doc(postId).collection("comments").doc(commentId).update({
+          text: newText,
+          editedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    }
+
+    function deleteComment(commentId) {
+      const confirmDelete = confirm("¿Seguro que deseas eliminar este comentario?");
+      if (confirmDelete) {
+        db.collection("posts").doc(postId).collection("comments").doc(commentId).delete();
+      }
+    }
+  </script>
 </body>
 </html>
