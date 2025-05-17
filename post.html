@@ -12,142 +12,163 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
   <style>
-    *{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #ffffff;
-  margin: 0;
-  padding: 0;
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-.container {
-  max-width: 800px;
-  background: #d2cccc;
-  margin: 40px auto;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
 
-.post-title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #333;
-}
+    .contHeaderVexo {
+      width: 100vw;
+      height: 13vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
 
-.post-content {
-  font-size: 16px;
-  margin-bottom: 20px;
-}
+    .logoVEXO {
+      background-color: white;
 
-.comment-header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
-}
+      img {
+        background-color: white;
+        width: 14vw;
+        padding-left: 6vh;
+      }
+    }
 
-.comment-header img {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-}
+    .container {
+      max-width: 800px;
+      background: #d2cccc;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 
-.comment-header strong {
-  font-size: 16px;
-  color: #222;
-}
+    .post-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
 
-.comment-header small {
-  font-size: 12px;
-  color: #888;
-}
+    .post-content {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
 
-h3 {
-  margin-bottom: 15px;
-  font-size: 22px;
-  color: #333;
-}
+    .comment-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
 
-.comment {
-  background: #dbdbdb;
-  padding: 20px;
-  border-radius: 15px;
-  margin-bottom: 10px;
-}
+    .comment-header img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+    }
 
-.comment img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-}
+    .comment-header strong {
+      font-size: 16px;
+      color: #222;
+    }
 
-.comment div {
-  font-size: 15px;
-  color: #444;
-}
+    .comment-header small {
+      font-size: 12px;
+      color: #888;
+    }
 
-.comment strong {
-  color: #111;
-}
+    h3 {
+      margin-bottom: 15px;
+      font-size: 22px;
+      color: #333;
+    }
 
-.comment small {
-  color: #888;
-  font-size: 12px;
-}
+    .comment {
+      background: #dbdbdb;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 10px;
+    }
 
-.btn-small {
-  border: none;
-  background: none;
-  padding: 5px;
-  cursor: pointer;
-  margin-right: 5px;
-  transition: transform 0.2s ease;
-}
+    .comment img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+    }
 
-.btn-small:hover {
-  transform: scale(1.1);
-}
+    .comment div {
+      font-size: 15px;
+      color: #444;
+    }
 
-.edit-btn img,
-.delete-btn img {
-  width: 18px;
-  height: 18px;
-}
+    .comment strong {
+      color: #111;
+    }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .container {
-    padding: 20px;
-  }
+    .comment small {
+      color: #888;
+      font-size: 12px;
+    }
 
-  .comment-header,
-  .comment {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+    .btn-small {
+      border: none;
+      background: none;
+      padding: 5px;
+      cursor: pointer;
+      margin-right: 5px;
+      transition: transform 0.2s ease;
+    }
 
-  .comment img,
-  .comment-header img {
-    margin-bottom: 10px;
-  }
+    .btn-small:hover {
+      transform: scale(1.1);
+    }
 
-  .btn-small img {
-    width: 16px;
-    height: 16px;
-  }
-}
+    .edit-btn img,
+    .delete-btn img {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      .comment-header,
+      .comment {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .comment img,
+      .comment-header img {
+        margin-bottom: 10px;
+      }
+
+      .btn-small img {
+        width: 16px;
+        height: 16px;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <header>
-    <img src="Diseño Proyecto Progresivo Pag 1-05.png" alt="Logo">
+  <header class="contHeaderVexo">
+    <nav class="logoVEXO">
+      <img src="storage/img/LogoVEXO.png" alt="">
+    </nav>
   </header>
 
   <div class="container">
@@ -164,7 +185,7 @@ h3 {
     <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
     <button onclick="addComment()">Comentar</button>
 
-    <br><a href="index.html" class="back-link">⬅ Volver al foro</a>
+    <br><a href="index.html" class="back-link">Volver al foro</a>
   </div>
 
   <script>
@@ -201,7 +222,7 @@ h3 {
         if (!doc.exists) return;
         const p = doc.data();
         document.getElementById("post").innerHTML = `
-        <div class="comment-header" style="margin-bottom:10px;">
+        <div class="comment-header">
           <img src="${p.authorPhotoURL || 'https://via.placeholder.com/40'}" alt="Foto autor">
         <div>
         <strong>${p.authorName}</strong><br>
@@ -227,7 +248,7 @@ h3 {
         .onSnapshot(snapshot => {
           container.innerHTML = "";
           if (snapshot.empty) {
-            container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
+            container.innerHTML = "<p>No hay comentarios aún.</p>";
             return;
           }
 
