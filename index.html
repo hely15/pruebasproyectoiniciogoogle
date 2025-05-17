@@ -15,8 +15,9 @@
           <a href="#" id="navHome" class="active">Inicio</a>
           <a href="#" id="navForum">Foro</a>
           <a href="#" id="navProfile">Mi Perfil</a>
+        </nav>
       <!-- Barra de búsqueda -->
-      <div class="search-box">
+      <div class="search-box" id="search-box">
         <div class="search-input-group">
           <input id="searchInput" class="search-input" placeholder="Busca en Vexo">
           <button id="btnSearch" class="search-btn">Buscar</button>
@@ -30,7 +31,6 @@
           <button class="filter-chip" data-topic="5">Seguridad y Buenas Prácticas</button>
         </div>
       </div>
-        </nav>
         <div class="auth-section">
           <button id="btnHeaderLogin" class="btn-login">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
@@ -109,9 +109,6 @@
 
     <!-- Foro -->
     <section id="forumSection" class="section">
-      <h2 class="forum-title">Foro de la Comunidad</h2>
-      
-      
       <div class="create-post-box">
         <h3 class="create-post-title">Crear publicación</h3>
         <div class="form-group">
@@ -207,6 +204,7 @@
     const postSuccess     = document.getElementById('postSuccess');
     const searchInput     = document.getElementById('searchInput');
     const btnSearch       = document.getElementById('btnSearch');
+    const searchBox       = document.getElementById('search-box')
     const filterChips     = document.querySelectorAll('.filter-chip');
 
     let currentUser = null;
@@ -234,6 +232,7 @@
         signedInContent.style.display = 'block';
         navForum.style.display      = 'inline';
         navProfile.style.display    = 'inline';
+        searchBox.style.display   = 'inline';
         loadUserProfile(user.uid);
         loadPosts(currentTab, currentFilter, searchQuery);
         checkUserInFirestore(user);
@@ -245,6 +244,7 @@
         signedInContent.style.display = 'none';
         navForum.style.display      = 'none';
         navProfile.style.display    = 'none';
+        searchBox.style.display   = 'none';
         showSection('welcome');
       }
     });
