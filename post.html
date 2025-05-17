@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <style>
-    * {
+    *{
       padding: 0;
       margin: 0;
       box-sizing: border-box;
@@ -25,13 +25,12 @@
       height: 8vh;
       top: 0;
       left: 0;
-      background-color: white;
-
-      img {
+       background-color: white;
+    img {
         background-color: white;
         width: 14vw;
         padding-left: 6vh;
-      }
+    }
     }
 
     .container {
@@ -107,30 +106,30 @@
       text-decoration: none;
       color: #4285F4;
       font-weight: bold;
-    }
+    } 
   </style>
 </head>
 
 <body>
-  <header>
+   <header>
     <img src="Diseño Proyecto Progresivo Pag 1-05.png" alt="">
   </header>
-  <div class="container">
-    <div id="post"></div>
+    <div class="container">
+      <div id="post"></div>
 
-    <h3>Comentarios</h3>
-    <label for="orderSelect"><strong>Ordenar por:</strong></label>
-    <select id="orderSelect">
-      <option value="desc">Más recientes</option>
-      <option value="asc">Más antiguos</option>
-    </select>
-    <div id="comments"></div>
+      <h3>Comentarios</h3>
+      <label for="orderSelect"><strong>Ordenar por:</strong></label>
+      <select id="orderSelect">
+        <option value="desc">Más recientes</option>
+        <option value="asc">Más antiguos</option>
+      </select>
+      <div id="comments"></div>
 
-    <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
-    <button onclick="addComment()">Comentar</button>
+      <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
+      <button onclick="addComment()">Comentar</button>
 
-    <br><a href="index.html" class="back-link">⬅ Volver al foro</a>
-  </div>
+      <br><a href="index.html" class="back-link">⬅ Volver al foro</a>
+    </div>
 
   <script>
     const firebaseConfig = {
@@ -168,18 +167,12 @@
       });
     }
 
-    function listenToComments(postId) {
+    function listenToComments(id) {
       const container = document.getElementById("comments");
-      const order = document.getElementById("orderSelect").value;
-
-      if (unsubscribeComments) unsubscribeComments();
-
-      unsubscribeComments = db.collection("posts").doc(postId)
-        .collection("comments")
-        .orderBy("createdAt", order)
+      db.collection("posts").doc(id).collection("comments")
+        .orderBy("createdAt", "asc")
         .onSnapshot(snapshot => {
           container.innerHTML = "";
-
           if (snapshot.empty) {
             container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
             return;
@@ -189,31 +182,30 @@
             const c = doc.data();
             const cid = doc.id;
             const date = c.createdAt?.toDate().toLocaleString() || '';
-
             const div = document.createElement("div");
             div.className = "comment";
             div.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
-            <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}"
-                 style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-            <div>
-              <strong>${c.authorName}</strong><br>
-              <small style="color:#888;">${date}</small>
-            </div>
-          </div>
-          <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
-          ${currentUser && currentUser.uid === c.authorId ? `
-            <div style="margin-left:50px; margin-top:5px;">
-              <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
-              <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
-            </div>
-          ` : ''}
-        `;
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+                <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}"
+                     style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                <div>
+                  <strong>${c.authorName}</strong><br>
+                  <small style="color:#888;">${date}</small>
+                </div>
+              </div>
+              <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
+              ${currentUser && currentUser.uid === c.authorId ? `
+                  <div style="margin-left:50px; margin-top:5px;">
+                    <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
+                    <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
+                  </div>
+                ` : ''
+              }
+            `;
             container.appendChild(div);
           });
         });
     }
-
 
     function addComment() {
       const input = document.getElementById("new-comment");
@@ -248,36 +240,36 @@
     }
     let unsubscribeComments = null;
 
-    document.getElementById("orderSelect").addEventListener("change", () => {
-      if (postId) {
-        listenToComments(postId); // Recarga los comentarios con el nuevo orden
+document.getElementById("orderSelect").addEventListener("change", () => {
+  if (postId) {
+    listenToComments(postId); // Recarga los comentarios con el nuevo orden
+  }
+});
+
+function listenToComments(postId) {
+  const container = document.getElementById("comments");
+  const order = document.getElementById("orderSelect").value;
+
+  // Detener anterior listener si existe
+  if (unsubscribeComments) unsubscribeComments();
+
+  unsubscribeComments = db.collection("posts").doc(postId)
+    .collection("comments")
+    .orderBy("createdAt", order)
+    .onSnapshot(snapshot => {
+      container.innerHTML = "";
+      if (snapshot.empty) {
+        container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
+        return;
       }
-    });
 
-    function listenToComments(postId) {
-      const container = document.getElementById("comments");
-      const order = document.getElementById("orderSelect").value;
-
-      // Detener anterior listener si existe
-      if (unsubscribeComments) unsubscribeComments();
-
-      unsubscribeComments = db.collection("posts").doc(postId)
-        .collection("comments")
-        .orderBy("createdAt", order)
-        .onSnapshot(snapshot => {
-          container.innerHTML = "";
-          if (snapshot.empty) {
-            container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
-            return;
-          }
-
-          snapshot.forEach(doc => {
-            const c = doc.data();
-            const cid = doc.id;
-            const date = c.createdAt?.toDate().toLocaleString() || '';
-            const div = document.createElement("div");
-            div.className = "comment";
-            div.innerHTML = `
+      snapshot.forEach(doc => {
+        const c = doc.data();
+        const cid = doc.id;
+        const date = c.createdAt?.toDate().toLocaleString() || '';
+        const div = document.createElement("div");
+        div.className = "comment";
+        div.innerHTML = `
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
             <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}"
                  style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
@@ -287,18 +279,19 @@
             </div>
           </div>
           <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
-          ${currentUser && currentUser.uid === c.authorId ? `
+          ${
+            currentUser && currentUser.uid === c.authorId ? `
               <div style="margin-left:50px; margin-top:5px;">
-                <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)"><img src="pencil.svg"></button>
-                <button class="btn-small delete-btn" onclick="deleteComment('${cid}')"><img src="trash.svg"></button>
+                <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
+                <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
               </div>
             ` : ''
-              }
+          }
         `;
-            container.appendChild(div);
-          });
-        });
-    }
+        container.appendChild(div);
+      });
+    });
+}
   </script>
 </body>
 
