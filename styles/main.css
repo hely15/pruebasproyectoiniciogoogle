@@ -6,14 +6,14 @@
     .header-content { display:flex; align-items:center; }
     .logo { width: 14vw;}
     .auth-section { margin-left:auto; display:flex; align-items:center; }
-    .btn-login { background:#fff; color:#4285F4; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold; display:flex; align-items:center; transition:.3s; }
+    .btn-login { background:#fff; color:#3e326b; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold; display:flex; align-items:center; transition:.3s; }
     .btn-login img { width:18px; margin-right:10px; }
     .btn-login:hover { background:#f0f0f0; }
     .user-info { display:none; align-items:center; color:#fff; }
     .user-info img { width:32px; height:32px; border-radius:50%; margin-right:10px; object-fit:cover; }
-    .btn-logout { background:#ff4336; color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-left:10px; font-size:14px; }
+    .btn-logout { background:#5c2c28; color:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; margin-left:10px; font-size:14px; }
     main { flex:1; padding:20px; }
-    .section { margin:20px auto; background:#dbdbdb; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:30px; max-width:800px; }
+    .section { margin:20px auto; background:#dbdbdb; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:30px; max-width:700px; }
     /* ———————— Bienvenida ———————— */
     .welcome-box { text-align:center; max-width:500px; }
     .welcome-title { font-size:24px; margin-bottom:20px; color:#333; }
@@ -31,7 +31,7 @@
     .form-group { margin-bottom:15px; }
     .form-label { font-weight:bold; color:#555; display:block; margin-bottom:5px; }
     .form-input, .form-textarea, .form-select { width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; }
-    .form-textarea { min-height:100px; resize:vertical; }
+    .form-textarea { min-height:50px; resize:vertical; }
     .btn-save { background:#40215d; color:#fff; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer; transition:.3s; text-decoration: none;}
     .btn-save:hover { background:#280e41; }
     .error-message, .success-message { display:none; padding:10px; border-radius:5px; margin-bottom:15px; }
@@ -66,9 +66,9 @@
     .search-input { flex:1; padding:10px; border:none; border-radius: 40px;}
     .filter-chip { background:#e0e0e0; border:none; padding:5px 10px; border-radius:15px; font-size:14px; cursor:pointer; transition:.2s; }
     .filter-chip:hover { background:#d0d0d0; }
-    .filter-chip.active { background:#40215d; color:#fff; }
+    .filter-chip.active { background:#40215da9; color:#fff; }
 
-    .create-post-box { background:#dbdbdb; padding:20px; border-radius:5px; margin-bottom:30px; }
+    .create-post-box { background:#dbdbdb; padding:20px; border-radius:5px;}
     .create-post-title { font-size:18px; color:#333; margin-bottom:15px; }
     .tabs { display:flex; justify-content:center; margin-bottom:20px; }
     .tab { padding:10px 20px; cursor:pointer; background:#f0f0f0; border:none; margin:0 5px; border-radius:5px; font-weight:bold; transition:.3s; }
@@ -76,7 +76,7 @@
     .tab:hover { background:#280e41; }
 
     .post-list { margin-top:30px; }
-    .post-item { background:#dbdbdb; padding:20px; border-radius:12px; margin-bottom:20px;}
+    .post-item { background:#c2c1c1; padding:20px; border-radius:12px; margin-bottom:20px;}
     .post-header { display:flex; align-items:center; margin-bottom:15px; }
     .post-author-photo { width:60px; height:60px; border-radius:50%; object-fit:cover; margin-right:10px; }
     .post-author-name { font-weight:bold; color:#333; }
