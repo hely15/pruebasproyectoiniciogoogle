@@ -53,37 +53,37 @@
     }
 
     .order-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 20px 0;
-}
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
 
-.order-container label {
-  font-weight: bold;
-  font-size: 14px;
-  color: #333;
-}
+    .order-container label {
+      font-weight: bold;
+      font-size: 14px;
+      color: #333;
+    }
 
-#orderSelect {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-  transition: border-color 0.3s;
-}
+    #orderSelect {
+      padding: 1px 6px;
+      border-radius: 11px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
 
-#orderSelect:hover {
-  border-color: #888;
-}
+    #orderSelect:hover {
+      border-color: #888;
+    }
 
-#orderSelect:focus {
-  outline: none;
-  border-color: #4285F4;
-  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
-}
+    #orderSelect:focus {
+      outline: none;
+      border-color: #4285F4;
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+    }
 
     .post-title {
       font-size: 28px;
@@ -108,6 +108,7 @@
       width: 50px;
       height: 50px;
       object-fit: cover;
+      border-radius: 50%;
     }
 
     .comment-header strong {
@@ -194,6 +195,68 @@
         height: 16px;
       }
     }
+
+    /* Contenedor del formulario de comentario */
+.comment-form {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Textarea para el comentario */
+#new-comment {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+  background-color: #fff;
+  transition: border-color 0.3s;
+}
+
+#new-comment:focus {
+  outline: none;
+  border-color: #4285F4;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+/* Botón de comentar */
+.comment-form button {
+  align-self: flex-start;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.comment-form button:hover {
+  background-color: #43a047;
+}
+
+/* Enlace para volver */
+.back-link {
+  margin-top: 25px;
+  display: inline-block;
+  color: #4285F4;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: #3367d6;
+  text-decoration: underline;
+}
+
   </style>
 </head>
 
@@ -217,10 +280,12 @@
     </div>
     <div id="comments"></div>
 
-    <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
-    <button onclick="addComment()">Comentar</button>
+    <div class="comment-form">
+      <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
+      <button onclick="addComment()">Comentar</button>
+      <a href="index.html" class="back-link">⬅ Volver al foro</a>
+    </div>
 
-    <br><a href="index.html" class="back-link">Volver al foro</a>
   </div>
 
   <script>
@@ -294,7 +359,7 @@
             const div = document.createElement("div");
             div.className = "comment";
             div.innerHTML = `
-              <div class="comment-header">
+              <div class="comment-header" style="border-radius: 50%;">
                 <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}" alt="Foto de perfil">
                 <div>
                   <strong>${c.authorName}</strong><br>
