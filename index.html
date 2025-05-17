@@ -273,7 +273,7 @@
       profileSection.style.display = name==='profile'? 'block':'none';
       forumSection.style.display   = name==='forum'? 'block':'none';
       navHome.classList   .toggle('active', name==='welcome');
-      navProfile.classList.toggle('active', name==='profile');
+      userName.classList.toggle('active', name==='profile');
       navForum.classList  .toggle('active', name==='forum');
     }
     navHome.addEventListener('click', () => showSection('welcome'));
