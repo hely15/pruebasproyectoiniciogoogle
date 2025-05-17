@@ -4,7 +4,7 @@
     .container { max-width:1200px; margin:0 auto; padding:0 20px; }
     header { background: #dbdbdb; color:#fff; padding:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
     .header-content { display:flex; align-items:center; }
-    .logo { width: 100px;}
+    .logo { width: 14vw;}
     .auth-section { margin-left:auto; display:flex; align-items:center; }
     .btn-login { background:#fff; color:#4285F4; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold; display:flex; align-items:center; transition:.3s; }
     .btn-login img { width:18px; margin-right:10px; }
@@ -41,10 +41,9 @@
 
     /* 2. BARRA DE BÚSQUEDA */
 .search-box {
-    background: #fff;
     padding: 8px;
     border-radius: 50px;
-    margin-bottom: 15px;
+    width: 55vw;
   }
     
   .search-filters {
@@ -63,7 +62,7 @@
     display: flex;
   }
 
-    .search-input-group { display:flex; gap:10px; margin-bottom:10px; }
+    .search-input-group { display:flex; gap:10px;}
     .search-input { flex:1; padding:10px; border:none; border-radius: 40px;}
     .filter-chip { background:#e0e0e0; border:none; padding:5px 10px; border-radius:15px; font-size:14px; cursor:pointer; transition:.2s; }
     .filter-chip:hover { background:#d0d0d0; }
@@ -77,7 +76,7 @@
     .tab:hover { background:#280e41; }
 
     .post-list { margin-top:30px; }
-    .post-item { background:#dbdbdb; padding:20px; border-radius:12px; margin-bottom:20px; }
+    .post-item { background:#dbdbdb; padding:20px; border-radius:12px; margin-bottom:20px;}
     .post-header { display:flex; align-items:center; margin-bottom:15px; }
     .post-author-photo { width:60px; height:60px; border-radius:50%; object-fit:cover; margin-right:10px; }
     .post-author-name { font-weight:bold; color:#333; }
