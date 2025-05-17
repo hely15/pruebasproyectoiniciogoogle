@@ -136,7 +136,7 @@
 
 <body>
   <header>
-    <img src="Diseño Proyecto Progresivo Pag 1-05.png" alt="">
+    <img src="Diseño Proyecto Progresivo Pag 1-05.png" alt="Logo">
   </header>
   <div class="container">
     <div id="post"></div>
@@ -170,6 +170,7 @@
 
     const postId = new URLSearchParams(location.search).get("id");
     let currentUser = null;
+    let unsubscribeComments = null;
 
     auth.onAuthStateChanged(user => {
       currentUser = user;
@@ -177,6 +178,10 @@
         loadPost(postId);
         listenToComments(postId);
       }
+    });
+
+    document.getElementById("orderSelect").addEventListener("change", () => {
+      if (postId) listenToComments(postId);
     });
 
     function loadPost(id) {
@@ -202,7 +207,6 @@
         .orderBy("createdAt", order)
         .onSnapshot(snapshot => {
           container.innerHTML = "";
-
           if (snapshot.empty) {
             container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
             return;
@@ -212,31 +216,30 @@
             const c = doc.data();
             const cid = doc.id;
             const date = c.createdAt?.toDate().toLocaleString() || '';
-
             const div = document.createElement("div");
             div.className = "comment";
             div.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
-            <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}"
-                 style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-            <div>
-              <strong>${c.authorName}</strong><br>
-              <small style="color:#888;">${date}</small>
-            </div>
-          </div>
-          <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
-          ${currentUser && currentUser.uid === c.authorId ? `
-            <div style="margin-left:50px; margin-top:5px;">
-              <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
-              <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
-            </div>
-          ` : ''}
-        `;
+              <div class="comment-header">
+                <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}" alt="foto">
+                <div>
+                  <strong>${c.authorName}</strong><br>
+                  <small>${date}</small>
+                </div>
+              </div>
+              <div class="comment-body" id="text-${cid}">${c.text}</div>
+              ${
+                currentUser && currentUser.uid === c.authorId ? `
+                  <div class="comment-body">
+                    <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">✏️ Editar</button>
+                    <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">🗑 Eliminar</button>
+                  </div>
+                ` : ''
+              }
+            `;
             container.appendChild(div);
           });
         });
     }
-
 
     function addComment() {
       const input = document.getElementById("new-comment");
@@ -268,59 +271,6 @@
       if (confirmDelete) {
         db.collection("posts").doc(postId).collection("comments").doc(commentId).delete();
       }
-    }
-    let unsubscribeComments = null;
-
-    document.getElementById("orderSelect").addEventListener("change", () => {
-      if (postId) {
-        listenToComments(postId); // Recarga los comentarios con el nuevo orden
-      }
-    });
-
-    function listenToComments(postId) {
-      const container = document.getElementById("comments");
-      const order = document.getElementById("orderSelect").value;
-
-      // Detener anterior listener si existe
-      if (unsubscribeComments) unsubscribeComments();
-
-      unsubscribeComments = db.collection("posts").doc(postId)
-        .collection("comments")
-        .orderBy("createdAt", order)
-        .onSnapshot(snapshot => {
-          container.innerHTML = "";
-          if (snapshot.empty) {
-            container.innerHTML = "<p style='color:#888'>No hay comentarios aún.</p>";
-            return;
-          }
-
-          snapshot.forEach(doc => {
-            const c = doc.data();
-            const cid = doc.id;
-            const date = c.createdAt?.toDate().toLocaleString() || '';
-            const div = document.createElement("div");
-            div.className = "comment";
-            div.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
-            <img src="${c.authorPhotoURL || 'https://via.placeholder.com/40'}"
-                 style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
-            <div>
-              <strong>${c.authorName}</strong><br>
-              <small style="color:#888;">${date}</small>
-            </div>
-          </div>
-          <div style="margin-left:50px;" id="text-${cid}">${c.text}</div>
-          ${currentUser && currentUser.uid === c.authorId ? `
-              <div style="margin-left:50px; margin-top:5px;">
-                <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)"><img src="pencil.svg"></button>
-                <button class="btn-small delete-btn" onclick="deleteComment('${cid}')"><img src="trash.svg"></button>
-              </div>
-            ` : ''
-              }
-        `;
-            container.appendChild(div);
-          });
-        });
     }
   </script>
 </body>
