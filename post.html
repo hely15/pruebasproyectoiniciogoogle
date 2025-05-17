@@ -52,6 +52,39 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
+    .order-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.order-container label {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+#orderSelect {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+#orderSelect:hover {
+  border-color: #888;
+}
+
+#orderSelect:focus {
+  outline: none;
+  border-color: #4285F4;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
     .post-title {
       font-size: 28px;
       font-weight: bold;
@@ -167,7 +200,7 @@
 <body>
   <header class="contHeaderVexo">
     <nav class="logoVEXO">
-      <img src="storage/img/LogoVEXO.png" alt="">
+      <img src="Diseño Proyecto Progresivo Pag 1-05.png">
     </nav>
   </header>
 
@@ -175,11 +208,13 @@
     <div id="post"></div>
 
     <h3>Comentarios</h3>
-    <label for="orderSelect"><strong>Ordenar por:</strong></label>
-    <select id="orderSelect">
-      <option value="desc">Más recientes</option>
-      <option value="asc">Más antiguos</option>
-    </select>
+    <div class="order-container">
+      <label for="orderSelect"><strong>Ordenar por:</strong></label>
+      <select id="orderSelect">
+        <option value="desc">Más recientes</option>
+        <option value="asc">Más antiguos</option>
+      </select>
+    </div>
     <div id="comments"></div>
 
     <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
