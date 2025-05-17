@@ -390,14 +390,15 @@ h3 {
               </div>
               <div class="comment-body" id="text-${cid}">${c.text}</div>
               ${currentUser && currentUser.uid === c.authorId ? `
-                  <div class="comment-body">
-  <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">
-    <img src="pencil.svg" alt="Editar">
-  </button>
-  <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">
-    <img src="trash.svg" alt="Eliminar">
-  </button>
-</div>
+                  <div class="comment-buttons">
+                    <button class="btn-small edit-btn" onclick="editComment('${cid}', \`${c.text.replace(/`/g, '\\`')}\`)">
+                      <img src="pencil.svg" alt="Editar">
+                    </button>
+                    <button class="btn-small delete-btn" onclick="deleteComment('${cid}')">
+                      <img src="trash.svg" alt="Eliminar">
+                    </button>
+                  </div>
+
                 ` : ''
               }
             `;
